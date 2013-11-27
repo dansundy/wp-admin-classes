@@ -3,6 +3,7 @@
 /** 
  * The Class.
  */
+
 class Empyre_Add_Meta_Box {
 
     private $boxes;
