@@ -38,8 +38,8 @@ class Empyre_Add_Meta_Box {
             $box['context'],
             $box['priority'],
             array(
-                'description' => $box['description'],
-                'fields' => $box['fields']
+                'description' => isset( $box['description'] ) ? $box['description'] : '',
+                'fields'      => $box['fields']
             )
         );
     }
