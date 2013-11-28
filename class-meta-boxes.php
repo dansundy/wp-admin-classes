@@ -1,9 +1,5 @@
 <?php
 
-/** 
- * The Class.
- */
-
 class Empyre_Add_Meta_Box {
 
     private $boxes;
@@ -13,6 +9,7 @@ class Empyre_Add_Meta_Box {
      */
     public function __construct( $meta_box_data ) {
         $this->boxes = $meta_box_data;
+        
         add_action( 'add_meta_boxes_' . $this->boxes['post_type'], array( $this, 'add_meta_box' ) );
         add_action( 'save_post', array( $this, 'save_meta_box' ) );
 

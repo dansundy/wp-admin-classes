@@ -195,8 +195,8 @@ class Empyre_Customize {
             // Now output any custom overrides in the Custom CSS setting.
             $grp = get_theme_mod( 'empyre_css' );            
 
-            if ( ! empty( $grp[ 'custom_css' ] ) )
-                echo $grp[ 'custom_css' ];
+            if ( ! empty( $grp['custom_css'] ) )
+                echo $grp['custom_css'];
         ?>
         </style> 
         <!--/Customizer CSS-->
