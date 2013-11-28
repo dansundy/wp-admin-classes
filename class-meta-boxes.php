@@ -143,19 +143,21 @@ class Empyre_Add_Meta_Box {
             // Use get_post_meta to retrieve an existing value from the database.
             $post_value = get_post_meta( $post->ID, $field->id, true );
 
-            $value = ! empty( $post_value ) ? $post_value : $field->default;
+            $default = isset( $field->default ) ? $field->default : '';
+            $value = ! empty( $post_value ) ? $post_value : $default;
+            $label = ! empty( $field->label ) ? sprintf( '<label for="%s">%s </label>', $field->id, $field->label ) : '';
+            $classes = isset( $field->class ) ? ' class="' . implode( ',', $field->class ) . '"' : '';
 
-            $label = ! empty( $field->label ) ? sprintf('<label for="%s">%s </label>', $field->id, $field->label) : '';
-
-            echo '<p>';
+            echo '<p' . $classes . '>';
 
             switch( $field->type ) {
                 case 'text':
-                    printf('%2$s<input type="text" id="%1$s" name="%1$s" value="%3$s" size="%4$s">%5$s',
+                    printf('%2$s<input type="text" id="%1$s" name="%1$s" value="%3$s" size="%4$s"%5$s>%6$s',
                         $field->id,
                         $label,
                         esc_attr( $value ),
                         ! empty( $field->size ) ? $field->size : 25,
+                        ! empty( $field->placeholder) ? ' placeholder="' . $field->placeholder . '"' : '',
                         ! empty( $field->after ) ? ' <span class="meta-after">' . $field->after . '</span>' : ''
                     );
                     break;
@@ -167,7 +169,11 @@ class Empyre_Add_Meta_Box {
                         $selected = selected( $value, $k, false );//$value == $k ? 'selected' : '';
                         echo '<option value="' . $k . '" ' . $selected . '>' . $v . '</option>';
                     }
+                    
                     echo '</select>';
+                    break;
+                case 'editor' :
+                    wp_editor( $value, $field->id );
                     break;
             }     
 
