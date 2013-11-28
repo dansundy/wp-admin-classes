@@ -1,71 +1,5 @@
 <?php
 
-class Empyre_Option_Functions {
-  // Switch for different input types.
-    public function set_controls( $wp_customize, $id, $args, $type ) {
-        switch($type) {
-            case "color":
-                $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, $id, $args ) );
-                break;
-            case "image":
-                $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, $id, $args ) );
-                break;
-            case "textarea":
-                $wp_customize->add_control( new Empyre_Customize_Textarea_Control( $wp_customize, $id, $args ) );
-                break;
-            case "customtext":
-                $wp_customize->add_control( new Empyre_Custom_Text_Control( $wp_customize, $id, $args ) );
-                break;
-            default:
-                $wp_customize->add_control($id, $args);      
-                break;
-        }
-    }
-
-    // Adjust brightness of hex value.
-    public function adjust_brightness($hex, $value) {
-        // Steps should be between -255 and 255. Negative = darker, positive = lighter
-        $value = max(-255, min(255, $value));
-
-        // Format the hex color string
-        $hex = str_replace('#', '', $hex);
-        if (strlen($hex) == 3) {
-            $hex = str_repeat(substr($hex,0,1), 2).str_repeat(substr($hex,1,1), 2).str_repeat(substr($hex,2,1), 2);
-        }
-
-        // Get decimal values
-        $r = hexdec(substr($hex,0,2));
-        $g = hexdec(substr($hex,2,2));
-        $b = hexdec(substr($hex,4,2));
-
-        // Adjust number of steps and keep it inside 0 to 255
-        $r = max(0,min(255,$r + $value));
-        $g = max(0,min(255,$g + $value));  
-        $b = max(0,min(255,$b + $value));
-
-        $r_hex = str_pad(dechex($r), 2, '0', STR_PAD_LEFT);
-        $g_hex = str_pad(dechex($g), 2, '0', STR_PAD_LEFT);
-        $b_hex = str_pad(dechex($b), 2, '0', STR_PAD_LEFT);
-
-        return '#'.$r_hex.$g_hex.$b_hex;
-    }
-
-    // Get the appropriate font stack based on a key value.
-    public function generate_font_stack($key) {
-        $fonts = (object) array(
-            'helvetica' => '"Helvetica Neue", Helvetica, Arial, sans-serif',
-            'lucida'    => '"Lucida Grande", "Lucida Sans", Geneva, Verdana, sans-serif',
-            'verdana'   => 'Verdana, Geneva, sans-serif',
-            'georgia'   => 'Georgia, Times, "Times New Roman", serif',
-            'times'     => '"Times New Roman", Times, Georgia, serif'
-        );
-        
-        $stack = isset($fonts->$key) ? $fonts->$key : "'$key', sans-serif";
-
-        return $stack;
-    }
-}
-
 class Empyre_Customize {
 
     public static function register ( $wp_customize ) {
@@ -118,7 +52,7 @@ class Empyre_Customize {
                 $args['description'] = $option_setting->description;
 
             $setting_id = $option_setting->groupid . '_' . $option_setting->id;
-            Empyre_Option_Functions::set_controls($wp_customize, $setting_id, $args, $option_setting->class);
+            self::set_controls( $wp_customize, $setting_id, $args, $option_setting->class );
 
             $priority++;
         }
@@ -135,13 +69,6 @@ class Empyre_Customize {
             foreach( $option_settings as $option_setting ) {
                 
                 if ( isset( $option_setting->selector ) ) {
-                    /*$settings = array(
-                        'selector'  => $option_setting->selector,
-                        'property'  => $option_setting->property,
-                        'group'     => $option_setting->groupid,
-                        'setting'   => $option_setting->id,
-                        'default'   => $option_setting->default
-                    );*/
 
                     // The current values.
                     $values = get_theme_mod( $option_setting->groupid );
@@ -167,28 +94,7 @@ class Empyre_Customize {
                         // CSS settings based on link color
                         $selector = '#header-search form input[type="text"]:focus, form.form-search input[type="text"]:focus';
                         self::generate_css($selector, 'border-color', $value);
-                    }                    
-
-                    // TODO: Remove this automated brightness setting.
-                    /*if ( isset( $option_setting->spectrum ) ) {
-                        $light = Empyre_Option_Functions::adjust_brightness( $value, 80 );
-                        $dark = Empyre_Option_Functions::adjust_brightness( $value, -80 );
-                        $selectors = explode(', ', $option_setting->selector);
-
-                        foreach($selectors as $selector) {
-                            printf( '%s { %s:%s; }',
-                                $selector . ' .text-color-light, ' . $selector . ' a.text-color-light',
-                                $option_setting->property,
-                                $light
-                            );
-
-                            printf( '%s { %s:%s; }',
-                                $selector . ' .text-color-dark, ' . $selector . ' a.text-color-dark',
-                                $option_setting->property,
-                                $dark
-                            );
-                        }
-                    }*/
+                    }                  
                 }
             }
             
@@ -202,43 +108,13 @@ class Empyre_Customize {
         <!--/Customizer CSS-->
 
     <?php
-   }
-   
-   /**
-    * This outputs the javascript needed to automate the live settings preview.
-    * Also keep in mind that this function isn't necessary unless your settings 
-    * are using 'transport'=>'postMessage' instead of the default 'transport'
-    * => 'refresh'
-    * 
-    * Used by hook: 'customize_preview_init'
-    * 
-    * @see add_action('customize_preview_init',$func)
-    * @since MyTheme 1.0
-    */
-/*  public static function live_preview() {
-    wp_enqueue_script(
-        'empyre-themecustomizer', //Give the script an ID
-        get_template_directory_uri().'assets/js/theme-customizer.js', //Define it's JS file
-        array( 'jquery','customize-preview' ), //Define dependencies
-        '', //Define a version (optional) 
-        true //Specify whether to put in footer (leave this true)
-    );
-  }*/
+    }
 
     public static function generate_css( $selector, $style, $value, $echo = true ) {
         $return = '';
-        //$section = get_theme_mod($section_name);
-        //if ( isset( $section[ $setting_name ] ) ) {
-            //return;
-            //$mod = $section[ $setting_name ];
-        //} else {
-
-        //}
-
-
 
         if ( $style == 'font-family' )
-            $value = Empyre_Option_Functions::generate_font_stack( $value );
+            $value = self::generate_font_stack( $value );
           
 
         if ( ! empty( $value ) ) {        
@@ -251,12 +127,45 @@ class Empyre_Customize {
                 echo $return;
             }
         }
+
         return $return;
-    }    
+    }
+
+    public function set_controls( $wp_customize, $id, $args, $type ) {
+        switch($type) {
+            case "color":
+                $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, $id, $args ) );
+                break;
+            case "image":
+                $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, $id, $args ) );
+                break;
+            case "textarea":
+                $wp_customize->add_control( new Empyre_Customize_Textarea_Control( $wp_customize, $id, $args ) );
+                break;
+            case "customtext":
+                $wp_customize->add_control( new Empyre_Custom_Text_Control( $wp_customize, $id, $args ) );
+                break;
+            default:
+                $wp_customize->add_control($id, $args);      
+                break;
+        }
+    }
+
+    public function generate_font_stack($key) {
+        $fonts = (object) array(
+            'helvetica' => '"Helvetica Neue", Helvetica, Arial, sans-serif',
+            'lucida'    => '"Lucida Grande", "Lucida Sans", Geneva, Verdana, sans-serif',
+            'verdana'   => 'Verdana, Geneva, sans-serif',
+            'georgia'   => 'Georgia, Times, "Times New Roman", serif',
+            'times'     => '"Times New Roman", Times, Georgia, serif'
+        );
+        
+        $stack = isset($fonts->$key) ? $fonts->$key : "'$key', sans-serif";
+
+        return $stack;
+    }
 }
 
-//Enqueue live preview javascript in Theme Customizer admin screen
-//add_action( 'customize_preview_init' , array( 'MyTheme_Customize' , 'live_preview' ) );
 
 // Create a Textarea Control
 if ( class_exists( 'WP_Customize_Control' ) ) {
