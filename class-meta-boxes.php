@@ -161,7 +161,7 @@ class Empyre_Add_Meta_Box {
                         ! empty( $field->after ) ? ' <span class="meta-after">' . $field->after . '</span>' : ''
                     );
                     break;
-                case 'select' :
+                case 'select':
                     echo $label;
                     echo '<select name="' . $field->id . '" id="' . $field->id . '">';
                     
@@ -172,9 +172,17 @@ class Empyre_Add_Meta_Box {
                     
                     echo '</select>';
                     break;
-                case 'editor' :
+                case 'editor':
                     wp_editor( $value, $field->id );
                     break;
+                case 'checkbox':
+                    $checked = checked( $value, 'on', false );
+                    printf('%1$s<input type="checkbox" id="%2$s" name="%2$s" %3$s>',
+                        $label,
+                        $field->id,
+                        $checked
+                    );
+                    break; 
             }     
 
             echo '</p>';      
