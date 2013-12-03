@@ -177,10 +177,11 @@ class Empyre_Add_Meta_Box {
                     break;
                 case 'checkbox':
                     $checked = checked( $value, 'on', false );
-                    printf('%1$s<input type="checkbox" id="%2$s" name="%2$s" %3$s>',
+                    printf('%1$s<input type="checkbox" id="%2$s" name="%2$s" %3$s>%4$s',
                         $label,
                         $field->id,
-                        $checked
+                        $checked,
+                        ! empty( $field->after ) ? ' <span class="meta-after">' . $field->after . '</span>' : ''
                     );
                     break; 
             }     
