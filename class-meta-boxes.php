@@ -137,6 +137,8 @@ class Empyre_Add_Meta_Box {
         // Add an nonce field so we can check for it later.
         wp_nonce_field( 'empyre_inner_custom_box', 'empyre_inner_custom_box_nonce' );
 
+        echo '<table class="form-table">';
+        echo '<tbody>';
 
         foreach( $fields as $field ) {
 
@@ -148,11 +150,12 @@ class Empyre_Add_Meta_Box {
             $label = ! empty( $field->label ) ? sprintf( '<label for="%s">%s </label>', $field->id, $field->label ) : '';
             $classes = isset( $field->class ) ? ' class="' . implode( ',', $field->class ) . '"' : '';
 
-            echo '<p' . $classes . '>';
+            
+            echo '<tr valign="top"' . $classes . '>';
 
             switch( $field->type ) {
                 case 'text':
-                    printf('%2$s<input type="text" id="%1$s" name="%1$s" value="%3$s" size="%4$s"%5$s>%6$s',
+                    printf('<th scope="row">%2$s</th><td><input type="text" id="%1$s" name="%1$s" value="%3$s" size="%4$s"%5$s><p class="description">%6$s</p></td>',
                         $field->id,
                         $label,
                         esc_attr( $value ),
@@ -162,7 +165,8 @@ class Empyre_Add_Meta_Box {
                     );
                     break;
                 case 'select':
-                    echo $label;
+                    echo '<th scope="row">' . $label . '</th>';
+                    echo '<td>';
                     echo '<select name="' . $field->id . '" id="' . $field->id . '">';
                     
                     foreach( $field->choices as $k => $v ) {
@@ -171,13 +175,16 @@ class Empyre_Add_Meta_Box {
                     }
                     
                     echo '</select>';
+                    echo '</td>';
                     break;
                 case 'editor':
+                    echo '<td>';
                     wp_editor( $value, $field->id );
+                    echo '</td>';
                     break;
                 case 'checkbox':
                     $checked = checked( $value, 'on', false );
-                    printf('%1$s<input type="checkbox" id="%2$s" name="%2$s" %3$s>%4$s',
+                    printf('<th scope="row">%1$s</th><td><input type="checkbox" id="%2$s" name="%2$s" %3$s><p class="description">%4$s</p></td>',
                         $label,
                         $field->id,
                         $checked,
@@ -186,8 +193,12 @@ class Empyre_Add_Meta_Box {
                     break; 
             }     
 
-            echo '</p>';      
+            echo '</tr>';
+            
         }
+
+        echo '</tbody>';
+        echo '</table>';
     }
 }
 
