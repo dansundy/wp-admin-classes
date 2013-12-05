@@ -132,7 +132,7 @@ class Empyre_Add_Meta_Box {
         $fields = $args['args']['fields'];
 
         if ( ! empty( $args['args']['description'] ) ) {
-            echo '<p>' . $args['args']['description'] . '</p>';
+            echo $args['args']['description'];
         }
         // Add an nonce field so we can check for it later.
         wp_nonce_field( 'empyre_inner_custom_box', 'empyre_inner_custom_box_nonce' );
