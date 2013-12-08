@@ -112,7 +112,7 @@ class Empyre_Add_Meta_Box {
             if ( $field->type == 'text' ) {
                 $value = sanitize_text_field( $_POST[ $key ] );
             } else {
-                $value = $_POST[ $key ];
+                $value = isset( $_POST[ $key ] ) ? $_POST[ $key ] : null;
             }
 
             // Update the meta field.

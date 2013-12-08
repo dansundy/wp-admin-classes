@@ -43,7 +43,6 @@ class Empyre_Theme_Settings {
 
                 register_setting( $tab->id, $section->id );
                 add_settings_section( $section->id, $section->title, array( &$this, 'render_section_description' ), $tab->id );
-
                 
 
                 if ( $tab->id != $this->current_tab || empty( $section->fields ) )
@@ -53,9 +52,26 @@ class Empyre_Theme_Settings {
 
                     $options = (array) get_option( $section->id );
 
-                    $default = isset( $field->default ) ? $field->default : null;
+                    // For developer use only. This resets the tab or section to its defaults.
+                    // TODO: Remove for production - tab defalut reset.
+                    if ( isset( $section->reset ) || isset( $tab->reset ) ) {
+                        $options = array();
+                    }
 
-                    $value = isset( $options[ $field->id ] ) ? $options[ $field->id ] : $default;
+                    if ( isset( $field->defaults ) && is_array( $field->defaults ) ) {
+                        foreach( $field->boxes as $id => $value ) {
+                            //render_var( $options[ $field->id ][ $id ] );
+                            
+                            if ( ! isset( $options[ $field->id ][$id] ) ) {
+                                $options[ $field->id ][ $id ] = isset($field->defaults[$id]) ? $field->defaults[$id] : '';
+                                update_option( $section->id, $options );
+                            }
+                        }
+
+                    } elseif ( ! isset( $options[ $field->id ] ) ) {
+                        $options[ $field->id ] = isset( $field->default ) ? $field->default : '';
+                        update_option( $section->id, $options );
+                    }
 
                     add_settings_field( 
                         $field->id,
@@ -64,16 +80,16 @@ class Empyre_Theme_Settings {
                         $tab->id,
                         $section->id, 
                         array(
-                            'section' => $section->id,
-                            'type'    => $field->type,
-                            'id'      => $field->id,
-                            'value'   => $value,
-                            'size'    => isset( $field->size ) ? $field->size : null,
-                            'class'   => isset( $field->class ) ? $field->class : null,
-                            'desc'    => isset( $field->description ) ? $field->description : '',
-                            'default' => $default,
-                            'choices' => isset( $field->choices ) ? $field->choices : '',
-                            'placeholder' => isset( $field->placeholder ) ? $field->placeholder : null
+                            'section'     => $section->id,
+                            'type'        => $field->type,
+                            'id'          => $field->id,
+                            'value'       => ! is_array( $field->id ) ? $options[ $field->id ] : null,
+                            'size'        => isset( $field->size ) ? $field->size : null,
+                            'class'       => isset( $field->class ) ? $field->class : null,
+                            'desc'        => isset( $field->description ) ? $field->description : '',
+                            'choices'     => isset( $field->choices ) ? $field->choices : '',
+                            'placeholder' => isset( $field->placeholder ) ? $field->placeholder : null,
+                            'boxes'       => isset( $field->boxes ) ? $field->boxes : null  
                         ) 
                     );
                 }
@@ -102,14 +118,25 @@ class Empyre_Theme_Settings {
                 );
                 break;
             case 'checkbox':
-                $options = get_option( $args['section'] );
-                $val = ! empty( $options[ $args['id'] ] ) ? $options[ $args['id'] ] : 0;
-                printf ('<input name="%1$s[%2$s]" type="checkbox" value="1" class="code%4$s" %3$s />',
+                printf ('<input name="%1$s[%2$s]" type="hidden" value="0"><input name="%1$s[%2$s]" type="checkbox" value="1" class="code%4$s" %3$s>',
                     $args['section'],
                     $args['id'],
-                    checked( 1, $val, false ),
+                    checked( 1, $args['value'], false ),
                     isset( $args['class'] ) ? " class='{$args['class']}'" : ""
                 );
+                break;
+            case 'multicheckbox':
+                foreach( $args['boxes'] as $id => $label ) {
+                    $options = get_option( $args['section'] );
+                    printf ('<input name="%1$s[%2$s][%3$s]" type="hidden" value="0"><input name="%1$s[%2$s][%3$s]" type="checkbox" value="1" class="code%5$s" %4$s> %6$s<br>',
+                        $args['section'],
+                        $args['id'],
+                        $id,
+                        checked( 1, $options[ $args['id'] ][ $id ], false ),
+                        isset( $args['class'] ) ? " class='{$args['class']}'" : "",
+                        $label
+                    );
+                }
                 break;
             case 'select':
                 $options = get_option( $args['section'] );
@@ -119,7 +146,7 @@ class Empyre_Theme_Settings {
                     $args['id'],
                     isset( $args['class'] ) ? " class='{$args['class']}'" : ""
                 );
-                foreach($args['choices'] as $k => $v) {
+                foreach( $args['choices'] as $k => $v ) {
                     printf( '<option value="%s" %s>%s</option>', $k, selected( $val, $k ), $v );
                 }
                 echo '</select>';
