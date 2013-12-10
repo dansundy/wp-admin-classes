@@ -60,14 +60,11 @@ class Empyre_Theme_Settings {
 
                     if ( isset( $field->defaults ) && is_array( $field->defaults ) ) {
                         foreach( $field->boxes as $id => $value ) {
-                            //render_var( $options[ $field->id ][ $id ] );
-                            
                             if ( ! isset( $options[ $field->id ][$id] ) ) {
                                 $options[ $field->id ][ $id ] = isset($field->defaults[$id]) ? $field->defaults[$id] : '';
                                 update_option( $section->id, $options );
                             }
                         }
-
                     } elseif ( ! isset( $options[ $field->id ] ) ) {
                         $options[ $field->id ] = isset( $field->default ) ? $field->default : '';
                         update_option( $section->id, $options );
