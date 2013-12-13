@@ -2,99 +2,103 @@
 
 class Empyre_Customize {
 
-    public static function register ( $wp_customize ) {
+    public static function register( $wp_customize ) {
       
-        global $option_groups, $option_settings;
+        global $options;
 
-        $priority = 120;
-        foreach ($option_groups as $option_group) {
-            $wp_customize->add_section( $option_group->id,
+        foreach ($options as $option) {
+
+            $wp_customize->add_section( $option->id,
                 array(
-                    'title'       => __( $option_group->title, 'empyre' ),
-                    'priority'    => $priority,
+                    'title'       => __( $option->title, 'empyre' ),
+                    'priority'    => isset( $option->priority ) ? $option->priority : 120,
                     'capability'  => 'edit_theme_options',
-                    'description' => __( $option_group->description, 'empyre' )
-                )
-            );
-            $priority++;
-        }
-
-        $priority = 100;
-        foreach ($option_settings as $option_setting) {
-
-            // Push defaults to defaults object for future reference.
-            $option_defaults[ $option_setting->id ] = isset( $option_setting->default ) ? $option_setting->default : '';
-
-            $wp_customize->add_setting( $option_setting->groupid . '[' . $option_setting->id . ']',
-                array(
-                    'default'     => $option_defaults[$option_setting->id],
-                    'type'        => 'theme_mod',
-                    'capability'  => 'edit_theme_options',
-                    'transport'   => 'refresh'
+                    'description' => isset( $option->description) ? __( $option->description, 'empyre' ) : ''
                 )
             );
 
-            $args = array(
-                'label'     => __( $option_setting->label, 'empyre' ), //Admin-visible name of the control
-                'section'   => $option_setting->groupid, //ID of the section this control should render in (can be one of yours, or a WordPress default section)
-                'settings'  => $option_setting->groupid . '[' . $option_setting->id . ']', //Which setting to load and manipulate (serialized is okay)
-                'priority'  => $priority //Determines the order this control appears in for the specified section
-            );
+            $priority = 0;
+            foreach ($option->fields as $field) {
 
-            if ( $option_setting->class == 'select' || $option_setting->class == 'checkbox' ) {
-                $args['type'] = $option_setting->class;     
+                // Push defaults to defaults object for future reference.
+                //$option_defaults[ $field->id ] = isset( $field->default ) ? $field->default : '';
 
-                if ( ! empty( $option_setting->choices ) )
-                    $args['choices'] = $option_setting->choices;
+                $wp_customize->add_setting( $option->id . '[' . $field->id . ']',
+                    array(
+                        'default'     => isset( $field->default ) ? $field->default : '',
+                        'type'        => isset( $field->type) ? $field->type : 'theme_mod',
+                        'capability'  => 'edit_theme_options',
+                        'transport'   => 'refresh'
+                    )
+                );
+
+                $args = array(
+                    'label'     => __( $field->label, 'empyre' ), //Admin-visible name of the control
+                    'section'   => $option->id, //ID of the section this control should render in (can be one of yours, or a WordPress default section)
+                    'settings'  => $option->id . '[' . $field->id . ']', //Which setting to load and manipulate (serialized is okay)
+                    'priority'  => isset( $field->priority) ? $field->priority : $priority //Determines the order this control appears in for the specified section
+                );
+
+                if ( $field->class == 'select' || $field->class == 'checkbox' ) {
+                    $args['type'] = $field->class;     
+
+                    if ( ! empty( $field->choices ) )
+                        $args['choices'] = $field->choices;
+                }
+
+                if ( ! empty( $field->description ) )
+                    $args['description'] = $field->description;
+
+                $setting_id = $option->id . '_' . $field->id;
+                self::set_controls( $wp_customize, $setting_id, $args, $field->class );
+
+                $priority++;
             }
-
-            if ( ! empty( $option_setting->description ) )
-                $args['description'] = $option_setting->description;
-
-            $setting_id = $option_setting->groupid . '_' . $option_setting->id;
-            self::set_controls( $wp_customize, $setting_id, $args, $option_setting->class );
-
-            $priority++;
         }
     }
 
     public static function header_output() {
 
-        global $option_groups, $option_settings;
+        global $options;
         ?>
 
         <!--Customizer CSS--> 
         <style type="text/css">
         <?php
-            foreach( $option_settings as $option_setting ) {
-                
-                if ( isset( $option_setting->selector ) ) {
-
-                    // The current values.
-                    $values = get_theme_mod( $option_setting->groupid );
+            foreach( $options as $option) {
+                foreach( $option->fields as $field ) {
                     
-                    // If there is no value currently set use the default.
-                    $value = empty( $values[ $option_setting->id ] ) ? $option_setting->default : $values[ $option_setting->id ];
+                    if ( isset( $field->css ) ) {
 
-                    // If the default is also empty, don't output CSS.
-                    if ( empty( $value ) || ! isset( $option_setting->property ) )
-                        continue;
-                    
-                    // If there is a google font set, don't output the CSS for the dropdown.
-                    if ( $option_setting->selector === 'font-family' && isset( $values[ $value . '_google' ] ) )
-                        continue;
+                        // The current values.
+                        $values = get_theme_mod( $option->id );
+                        
+                        // If there is no value currently set use the default.
+                        $value = empty( $values[ $field->id ] ) ? $field->default : $values[ $field->id ];
+                        
+                        // If the default is also empty, don't output CSS.
+                        if ( empty( $value ) )
+                            continue;
 
-                    // If there are some tweaks to the value needed, do them.
-                    if ( $option_setting->property === 'background-image' )
-                        $value = "url('$value')";
+                        foreach( $field->css as $css) {
 
-                    self::generate_css( $option_setting->selector, $option_setting->property, $value );
+                            // If there is a google font set, don't output the CSS for the dropdown.
+                            if ( $css[0] === 'font-family' && isset( $values[ $value . '_google' ] ) )
+                                continue;
 
-                    if ( $option_setting->id === 'site_link_color' ) {
-                        // CSS settings based on link color
-                        $selector = '#header-search form input[type="text"]:focus, form.form-search input[type="text"]:focus';
-                        self::generate_css($selector, 'border-color', $value);
-                    }                  
+                            // If there are some tweaks to the value needed, do them.
+                            if ( $css[0] === 'background-image' )
+                                $value = "url('$value')";
+
+                            self::generate_css( $css[1], $css[0], $value );
+
+                            //if ( $field->id === 'site_link_color' ) {
+                                // CSS settings based on link color
+                                //$selector = '#header-search form input[type="text"]:focus, form.form-search input[type="text"]:focus';
+                                //self::generate_css($selector, 'border-color', $value);
+                            //}
+                        }              
+                    }
                 }
             }
             
@@ -115,7 +119,6 @@ class Empyre_Customize {
 
         if ( $style == 'font-family' )
             $value = self::generate_font_stack( $value );
-          
 
         if ( ! empty( $value ) ) {        
             $return = sprintf('%s { %s:%s; }',
@@ -146,12 +149,12 @@ class Empyre_Customize {
                 $wp_customize->add_control( new Empyre_Custom_Text_Control( $wp_customize, $id, $args ) );
                 break;
             default:
-                $wp_customize->add_control($id, $args);      
+                $wp_customize->add_control( $id, $args );      
                 break;
         }
     }
 
-    public function generate_font_stack($key) {
+    public function generate_font_stack( $key ) {
         $fonts = (object) array(
             'helvetica' => '"Helvetica Neue", Helvetica, Arial, sans-serif',
             'lucida'    => '"Lucida Grande", "Lucida Sans", Geneva, Verdana, sans-serif',
@@ -160,7 +163,7 @@ class Empyre_Customize {
             'times'     => '"Times New Roman", Times, Georgia, serif'
         );
         
-        $stack = isset($fonts->$key) ? $fonts->$key : "'$key', sans-serif";
+        $stack = isset( $fonts->$key ) ? $fonts->$key : "'$key', sans-serif";
 
         return $stack;
     }
