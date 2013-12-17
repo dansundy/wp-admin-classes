@@ -20,9 +20,6 @@ class Empyre_Customize {
             $priority = 0;
             foreach ($option->fields as $field) {
 
-                // Push defaults to defaults object for future reference.
-                //$option_defaults[ $field->id ] = isset( $field->default ) ? $field->default : '';
-
                 $wp_customize->add_setting( $option->id . '[' . $field->id . ']',
                     array(
                         'default'     => isset( $field->default ) ? $field->default : '',
@@ -68,42 +65,38 @@ class Empyre_Customize {
             foreach( $options as $option) {
                 foreach( $option->fields as $field ) {
                     
-                    if ( isset( $field->css ) ) {
+                    if ( ! empty( $field->css ) ) {
 
                         // The current values.
-                        $values = get_theme_mod( $option->id );
+                        $values = isset( $field->type ) && $field->type != 'option' ? get_theme_mod( $option->id ) : get_option( $option->id );
                         
+                        $default = ! empty( $field->default ) ? $field->default : null;
                         // If there is no value currently set use the default.
-                        $value = empty( $values[ $field->id ] ) ? $field->default : $values[ $field->id ];
+                        $value = empty( $values[ $field->id ] ) ? $default : $values[ $field->id ];
                         
                         // If the default is also empty, don't output CSS.
                         if ( empty( $value ) )
                             continue;
 
                         foreach( $field->css as $css) {
-
+                            
                             // If there is a google font set, don't output the CSS for the dropdown.
-                            if ( $css[0] === 'font-family' && isset( $values[ $value . '_google' ] ) )
+                            if ( $css[0] === 'font-family' && ! empty( $values[ $field->id . '_google' ] ) )
                                 continue;
+                                
 
                             // If there are some tweaks to the value needed, do them.
                             if ( $css[0] === 'background-image' )
                                 $value = "url('$value')";
 
                             self::generate_css( $css[1], $css[0], $value );
-
-                            //if ( $field->id === 'site_link_color' ) {
-                                // CSS settings based on link color
-                                //$selector = '#header-search form input[type="text"]:focus, form.form-search input[type="text"]:focus';
-                                //self::generate_css($selector, 'border-color', $value);
-                            //}
                         }              
                     }
                 }
             }
             
             // Now output any custom overrides in the Custom CSS setting.
-            $grp = get_theme_mod( 'empyre_css' );            
+            $grp = get_theme_mod( 'empyre_custom_css' );            
 
             if ( ! empty( $grp['custom_css'] ) )
                 echo $grp['custom_css'];
