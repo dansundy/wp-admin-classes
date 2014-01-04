@@ -86,7 +86,9 @@ class Empyre_Theme_Settings {
                             'desc'        => isset( $field->description ) ? $field->description : '',
                             'choices'     => isset( $field->choices ) ? $field->choices : '',
                             'placeholder' => isset( $field->placeholder ) ? $field->placeholder : null,
-                            'boxes'       => isset( $field->boxes ) ? $field->boxes : null  
+                            'boxes'       => isset( $field->boxes ) ? $field->boxes : null,
+                            'rows'        => isset( $field->rows ) ? $field->rows : null,
+                            'cols'        => isset( $field->cols ) ? $field->cols: null
                         ) 
                     );
                 }
@@ -112,6 +114,16 @@ class Empyre_Theme_Settings {
                     isset( $args['class'] ) ? " class='{$args['class']}'" : "",
                     isset( $args['size'] ) ? " size='{$args['size']}'" : "",
                     isset( $args['placeholder'] ) ? " placeholder='{$args['placeholder']}'" : ""
+                );
+                break;
+            case 'textarea':
+                printf( '<textarea id="%2$s" name="%1$s[%2$s]" cols="%4$s" rows="%5$s"%6$s>%3$s</textarea>',
+                    $args['section'],
+                    $args['id'],
+                    esc_attr( $args['value'] ),
+                    isset( $args['cols'] ) ? $args['cols'] : 60,
+                    isset( $args['rows'] ) ? $args['rows'] : 10,
+                    isset( $args['class'] ) ? " class='{$args['class']}'" : ""
                 );
                 break;
             case 'checkbox':
