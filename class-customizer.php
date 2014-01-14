@@ -68,11 +68,13 @@ class Empyre_Customize {
                     if ( ! empty( $field->css ) ) {
 
                         // The current values.
-                        $values = isset( $field->type ) && $field->type != 'option' ? get_theme_mod( $option->id ) : get_option( $option->id );
-                        
+                        $values = isset( $field->type ) && $field->type == 'option' ? get_option( $option->id ) : get_theme_mod( $option->id );
+
                         $default = ! empty( $field->default ) ? $field->default : null;
                         // If there is no value currently set use the default.
                         $value = empty( $values[ $field->id ] ) ? $default : $values[ $field->id ];
+
+                        
                         
                         // If the default is also empty, don't output CSS.
                         if ( empty( $value ) )
