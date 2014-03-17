@@ -6,7 +6,7 @@ class Empyre_Customize {
     
     global $options;
 
-    foreach ($options as $option) {
+    foreach ( $options as $option ) {
 
       $wp_customize->add_section( $option->id,
         array(
@@ -18,6 +18,9 @@ class Empyre_Customize {
       );
 
       $priority = 0;
+
+      if (! isset( $option->fields ) ) continue;
+
       foreach ($option->fields as $field) {
 
         $wp_customize->add_setting( $option->id . '[' . $field->id . ']',
@@ -63,6 +66,7 @@ class Empyre_Customize {
     <style type="text/css">
     <?php
       foreach( $options as $option) {
+        if (! isset( $option->fields ) ) continue;
         foreach( $option->fields as $field ) {
           
           if ( ! empty( $field->css ) ) {

@@ -87,8 +87,8 @@ class Empyre_Add_Meta_Box {
       return $post_id;
 
     // If this is an autosave, our form has not been submitted,
-        //     so we don't want to do anything.
-    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) 
+    // so we don't want to do anything.
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
       return $post_id;
 
     // Check the user's permissions.
@@ -118,6 +118,7 @@ class Empyre_Add_Meta_Box {
       // Update the meta field.
       update_post_meta( $post_id, $key, $value );
 
+      // render_var( array($post_id, $key, $value ) );
     }
   }
 
@@ -142,19 +143,8 @@ class Empyre_Add_Meta_Box {
       // Use get_post_meta to retrieve an existing value from the database.
       $post_value = get_post_meta( $post->ID, $field->id, true );
 
-      // if ( ! empty( $field->default ) ) {
-      //   $default = $field->default;
-
-      //   if ( empty( $post_value ) ) {
-      //     add_post_meta( $post->ID, $field->id, $default );
-      //   }
-
-      // } else {
-      //   $default = '';
-      // }
-
       $default = isset( $field->default ) ? $field->default : '';
-      $value = ! empty( $post_value ) ? $post_value : $default;
+      $value = empty( $post_value ) && $post_value != 0 ? $default : $post_value;
       $label = ! empty( $field->label ) ? sprintf( '<label for="%s">%s </label>', $field->id, $field->label ) : '';
       $classes = isset( $field->class ) ? ' class="' . implode( ',', $field->class ) . '"' : '';
       
