@@ -29,7 +29,7 @@ class Empyre_Add_Meta_Box {
 
     add_meta_box(
       $box['id'],
-      __( $box['headline'], 'empyre' ),
+      $box['headline'],
       array( $this, 'render_meta_box' ),
       $post->post_type,
       $box['context'],

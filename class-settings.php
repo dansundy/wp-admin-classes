@@ -26,7 +26,7 @@ class Empyre_Theme_Settings {
       foreach( $tab->errors as $id => $error ) {
         ?>
         <div id="<?php echo $id; ?>" class="error" style="display:none;">
-          <p><?php _e( $error, 'empyre' ); ?></p>
+          <p><?php echo $error; ?></p>
         </div>
         <?php
       }

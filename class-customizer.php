@@ -10,10 +10,10 @@ class Empyre_Customize {
 
       $wp_customize->add_section( $option->id,
         array(
-          'title'       => __( $option->title, 'empyre' ),
+          'title'       => $option->title,
           'priority'    => isset( $option->priority ) ? $option->priority : 120,
           'capability'  => 'edit_theme_options',
-          'description' => isset( $option->description) ? __( $option->description, 'empyre' ) : ''
+          'description' => isset( $option->description) ? $option->description : ''
         )
       );
 
@@ -35,7 +35,7 @@ class Empyre_Customize {
         );
 
         $args = array(
-          'label'     => __( $field_label, 'empyre' ), //Admin-visible name of the control
+          'label'     => $field_label, //Admin-visible name of the control
           'section'   => $option->id, //ID of the section this control should render in (can be one of yours, or a WordPress default section)
           'settings'  => $option->id . '[' . $field->id . ']', //Which setting to load and manipulate (serialized is okay)
           'priority'  => isset( $field->priority ) ? $field->priority : $priority //Determines the order this control appears in for the specified section
@@ -188,7 +188,7 @@ if ( class_exists( 'WP_Customize_Control' ) ) :
     public function render_content() {
       ?>
       <label>
-        <span class="customize-control-title"><?php echo esc_html( __( $this->label, 'empyre' ) ); ?></span>
+        <span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
         <textarea rows="15" style="width:100%;" <?php $this->link(); ?>><?php echo esc_textarea( $this->value() ); ?></textarea>
       </label>
       <?php
@@ -201,9 +201,9 @@ if ( class_exists( 'WP_Customize_Control' ) ) :
 
     public function render_content() { ?>
       <label>
-        <span class="customize-control-title"><?php echo esc_html( __( $this->label, 'empyre' ) ); ?></span>
+        <span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
         <input type="text" value="<?php echo esc_attr( $this->value() ); ?>" <?php $this->link(); ?> />
-        <p class="description"><?php echo esc_html( __( $this->description, 'empyre' ) ); ?></p>
+        <p class="description"><?php echo esc_html( $this->description ); ?></p>
       </label>
     <?php }
   }
@@ -218,7 +218,7 @@ if ( class_exists( 'WP_Customize_Control' ) ) :
 
     public function render_content() { ?>
       <label>
-        <span class="customize-control-title"><?php echo esc_html( __( $this->label, 'empyre' ) ); ?></span>
+        <span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
         <select> <?php echo esc_attr( $this->link() ); ?>
           <?php
             foreach( $this->choices as $k => $v ) {
@@ -226,7 +226,7 @@ if ( class_exists( 'WP_Customize_Control' ) ) :
             }
           ?>
         </select>
-        <p class="description"><?php echo esc_html( __( $this->description, 'empyre' ) ); ?></p>
+        <p class="description"><?php echo esc_html( $this->description ); ?></p>
       </label>
     <?php }
   }
@@ -236,7 +236,7 @@ if ( class_exists( 'WP_Customize_Control' ) ) :
     public $description = '';
 
     public function render_content() { ?>
-      <p class="description"><?php echo esc_html( __( $this->description, 'empyre' ) ); ?></p>
+      <p class="description"><?php echo esc_html( $this->description ); ?></p>
     <?php }
   }
 
