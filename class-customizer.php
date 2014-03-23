@@ -19,31 +19,37 @@ class Empyre_Customize {
 
       $priority = 0;
 
-      if (! isset( $option->fields ) ) continue;
+      if ( ! isset( $option->fields ) ) continue;
 
-      foreach ($option->fields as $field) {
+      foreach ( $option->fields as $field ) {
+
+        $field_label = isset( $field->label ) ? $field->label : null;
 
         $wp_customize->add_setting( $option->id . '[' . $field->id . ']',
           array(
             'default'     => isset( $field->default ) ? $field->default : '',
-            'type'        => isset( $field->type) ? $field->type : 'theme_mod',
+            'type'        => isset( $field->type ) ? $field->type : 'theme_mod',
             'capability'  => 'edit_theme_options',
             'transport'   => 'refresh'
           )
         );
 
         $args = array(
-          'label'     => __( $field->label, 'empyre' ), //Admin-visible name of the control
+          'label'     => __( $field_label, 'empyre' ), //Admin-visible name of the control
           'section'   => $option->id, //ID of the section this control should render in (can be one of yours, or a WordPress default section)
           'settings'  => $option->id . '[' . $field->id . ']', //Which setting to load and manipulate (serialized is okay)
-          'priority'  => isset( $field->priority) ? $field->priority : $priority //Determines the order this control appears in for the specified section
+          'priority'  => isset( $field->priority ) ? $field->priority : $priority //Determines the order this control appears in for the specified section
         );
+
 
         if ( $field->class == 'select' || $field->class == 'checkbox' ) {
           $args['type'] = $field->class;     
 
           if ( ! empty( $field->choices ) )
             $args['choices'] = $field->choices;
+
+          if ( ! empty( $field->default ) )
+            $args['default'] = $field->default;
         }
 
         if ( ! empty( $field->description ) )
@@ -143,8 +149,14 @@ class Empyre_Customize {
         $wp_customize->add_control( new Empyre_Customize_Textarea_Control( $wp_customize, $id, $args ) );
         break;
       case "customtext":
-        $wp_customize->add_control( new Empyre_Custom_Text_Control( $wp_customize, $id, $args ) );
+        $wp_customize->add_control( new Empyre_Customize_Text_Control( $wp_customize, $id, $args ) );
         break;
+      case "customdesc":
+        $wp_customize->add_control( new Empyre_Customize_Description( $wp_customize, $id, $args ) );
+        break;
+      // case "select":
+      //   $wp_customize->add_control( new Empyre_Customize_Select_Control( $wp_customize, $id, $args ) );
+      //   break;
       default:
         $wp_customize->add_control( $id, $args );      
         break;
@@ -168,7 +180,7 @@ class Empyre_Customize {
 
 
 // Create a Textarea Control
-if ( class_exists( 'WP_Customize_Control' ) ) {
+if ( class_exists( 'WP_Customize_Control' ) ) :
 
   class Empyre_Customize_Textarea_Control extends WP_Customize_Control {
     public $type = 'textarea';
@@ -176,26 +188,58 @@ if ( class_exists( 'WP_Customize_Control' ) ) {
     public function render_content() {
       ?>
       <label>
-        <span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
+        <span class="customize-control-title"><?php echo esc_html( __( $this->label, 'empyre' ) ); ?></span>
         <textarea rows="15" style="width:100%;" <?php $this->link(); ?>><?php echo esc_textarea( $this->value() ); ?></textarea>
       </label>
       <?php
     }
   }
 
-  class Empyre_Custom_Text_Control extends WP_Customize_Control {
+  class Empyre_Customize_Text_Control extends WP_Customize_Control {
     public $type = 'customtext';
     public $description = '';
 
     public function render_content() { ?>
       <label>
-        <span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span>
+        <span class="customize-control-title"><?php echo esc_html( __( $this->label, 'empyre' ) ); ?></span>
         <input type="text" value="<?php echo esc_attr( $this->value() ); ?>" <?php $this->link(); ?> />
-        <p class="description"><?php echo esc_html( $this->description ); ?></p>
+        <p class="description"><?php echo esc_html( __( $this->description, 'empyre' ) ); ?></p>
       </label>
     <?php }
   }
 
-}
+  class Empyre_Customize_Select_Control extends WP_Customize_Control {
+    public $type = 'select';
+    public $description = '';
+
+    // public function __construct($customizer, $id, $args) {
+    //   //$this->default = $args['default'];
+    // }
+
+    public function render_content() { ?>
+      <label>
+        <span class="customize-control-title"><?php echo esc_html( __( $this->label, 'empyre' ) ); ?></span>
+        <select> <?php echo esc_attr( $this->link() ); ?>
+          <?php
+            foreach( $this->choices as $k => $v ) {
+              printf( '<option value="%s">%s</option>', $k, $v );
+            }
+          ?>
+        </select>
+        <p class="description"><?php echo esc_html( __( $this->description, 'empyre' ) ); ?></p>
+      </label>
+    <?php }
+  }
+
+  class Empyre_Customize_Description extends WP_Customize_Control {
+    public $type = 'customdescription';
+    public $description = '';
+
+    public function render_content() { ?>
+      <p class="description"><?php echo esc_html( __( $this->description, 'empyre' ) ); ?></p>
+    <?php }
+  }
+
+endif;
 
 ?>
