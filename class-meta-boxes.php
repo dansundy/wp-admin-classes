@@ -183,6 +183,16 @@ class Empyre_Add_Meta_Box {
             ! empty( $field->after ) ? ' <span class="meta-after">' . $field->after . '</span>' : ''
           );
           break; 
+        case 'textarea':
+          printf('%1$s<textarea name="%2$s" id="%2$s" rows="%4$s" cols="%5$s" style="max-width:%6$s;">%3$s</textarea>',
+            ! empty( $field->label) ? '<p>' . $label . '</p>' : $label,
+            $field->id,
+            esc_attr( $value ),
+            ! empty( $field->rows ) ? $field->rows : '',
+            ! empty( $field->columns) ? $field->columns : '',
+            '100%'
+          );
+          break;
       }     
 
       echo '</p>';
