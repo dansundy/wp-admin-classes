@@ -11,7 +11,7 @@ class Empyre_Add_Meta_Box {
     $this->boxes = $meta_box_data;
     
     add_action( 'add_meta_boxes_' . $this->boxes['post_type'], array( $this, 'add_meta_box' ) );
-    add_action( 'save_post', array( $this, 'save_meta_box' ) );
+    add_action( 'save_post_' . $this->boxes['post_type'], array( $this, 'save_meta_box' ) );
 
     add_filter( 'empyre_check_template', array( $this, 'check_template' ), 10, 2 );
   }
@@ -108,6 +108,10 @@ class Empyre_Add_Meta_Box {
     foreach( $this->boxes['fields'] as $field ) {
       $key = $field->id;
 
+      // Check to make sure the key exists.
+      // if ( ! isset( $_POST[ $key ] ) )
+      //   continue;
+
       // Sanitize the user input.
       if ( $field->type == 'text' ) {
         $value = sanitize_text_field( $_POST[ $key ] );
@@ -117,8 +121,6 @@ class Empyre_Add_Meta_Box {
 
       // Update the meta field.
       update_post_meta( $post_id, $key, $value );
-
-      // render_var( array($post_id, $key, $value ) );
     }
   }
 
