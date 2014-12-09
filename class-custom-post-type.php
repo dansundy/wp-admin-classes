@@ -73,7 +73,8 @@ class Empyre_Register_Custom_Post_Type {
       );
       $args = array(
         'labels' => $labels,
-        'hierarchical' => ! isset( $data->taxonomies['hierarchical'] ) ? true : $data->taxonomies['hierarchical'],
+        'hierarchical' => ! isset( $tax->hierarchical ) ? true : $tax->hierarchical,
+        'show_admin_column' => ! isset( $tax->admin_column ) ? true : $tax->admin_column
       );
 
       register_taxonomy( $tax->id, $data->id, $args );
