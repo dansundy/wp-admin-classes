@@ -61,7 +61,8 @@ class Empyre_Theme_Settings {
           if ( isset( $field->defaults ) && is_array( $field->defaults ) ) {
             foreach( $field->boxes as $id => $value ) {
               if ( ! isset( $options[ $field->id ][$id] ) ) {
-                $options[ $field->id ][ $id ] = isset($field->defaults[$id]) ? $field->defaults[$id] : '';
+                $def = isset( $field->defaults[ $id ] ) ? $field->defaults[ $id ] : '';
+                $options[ $field->id ][ $id ] = $def;
                 update_option( $section->id, $options );
               }
             }
@@ -171,6 +172,11 @@ class Empyre_Theme_Settings {
       add_options_page( $this->menu[1], $this->menu[2], $this->menu[3], $this->menu[4], array( &$this, 'render_settings_page' ) );
     } elseif ($this->menu[0] == 'appearance') {
       add_theme_page( $this->menu[1], $this->menu[2], $this->menu[3], $this->menu[4], array( &$this, 'render_settings_page' ) );
+    } else {
+      /**
+       * Adds it to a custom post type page.
+       */
+      add_submenu_page( 'edit.php?post_type=' . $this->menu[0], $this->menu[1], $this->menu[2], $this->menu[3], $this->menu[4], array( &$this, 'render_settings_page' ) );
     }
   }
 
@@ -194,7 +200,8 @@ class Empyre_Theme_Settings {
     echo '<h2 class="nav-tab-wrapper">';
     foreach ( $this->tabs as $k => $v) {
       $active = $this->current_tab == $k ? 'nav-tab-active' : '';
-      echo '<a class="nav-tab ' . $active . '" href="?page=' . $this->menu[4] . '&tab=' . $k . '">' . $v . '</a>'; 
+      $pt = $this->menu[0] != 'settings' && $this->menu[0] != 'appearance' ? 'post_type=' . $this->menu[0] . '&' : '';
+      echo '<a class="nav-tab ' . $active . '" href="?' . $pt . 'page=' . $this->menu[4] . '&tab=' . $k . '">' . $v . '</a>';
     }
     echo '</h2>';
   }

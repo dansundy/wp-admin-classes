@@ -40,6 +40,7 @@ class Empyre_Register_Custom_Post_Type {
       'description'   => $data->description,
       'public'        => ! isset( $data->public ) ? true : $data->public,
       'menu_position' => isset( $data->position ) ? $data->position : null,
+      'menu_icon'     => isset( $data->menu_icon ) ? $data->menu_icon : null,
       'supports'      => $data->supports,
       'has_archive'   => ! isset( $data->archive ) ? true : $data->archive,
       'taxonomies'    => isset( $data->tax ) ? $data->tax : array()
@@ -68,7 +69,7 @@ class Empyre_Register_Custom_Post_Type {
         'update_item'       => sprintf( 'Update %s', $singular ),
         'add_new_item'      => sprintf( 'Add New %s', $singular ),
         'new_item_name'     => sprintf( 'New %s', $singular ),
-        'menu_name'         => sprintf( '%s', $plural ),
+        'menu_name'         => sprintf( '%s', $name ),
       );
       $args = array(
         'labels' => $labels,
