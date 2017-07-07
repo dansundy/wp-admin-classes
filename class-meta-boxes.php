@@ -267,5 +267,3 @@ if ( ! class_exists( 'Helios_Add_Meta_Box' ) ) :
   }
   
 endif;
-
-?>

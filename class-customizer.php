@@ -1,6 +1,7 @@
 <?php
 
 if ( ! class_exists( 'Helios_Customize' ) ) :
+
   class Helios_Customize {
 
     public static function register( $wp_customize ) {
@@ -244,5 +245,3 @@ if ( class_exists( 'WP_Customize_Control' ) ) :
   }
 
 endif;
-
-?>

@@ -85,5 +85,3 @@ if ( ! class_exists( 'Helios_Register_Custom_Post_Type' ) ) :
   }
 
 endif;
-
-?>

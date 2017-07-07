@@ -1,6 +1,6 @@
 <?php
 
-if ( ! class_exists( 'Helios_theme_Settings' ) ) :
+if ( ! class_exists( 'Helios_Theme_Settings' ) ) :
 
   class Helios_Theme_Settings {
 
@@ -210,5 +210,3 @@ if ( ! class_exists( 'Helios_theme_Settings' ) ) :
   };
 
 endif;
-
-?>
