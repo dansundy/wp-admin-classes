@@ -152,7 +152,7 @@ if ( ! class_exists( 'Helios_Add_Meta_Box' ) ) :
           }
           // $value = isset( $_POST[ $key ] ) ? $_POST[ $key ] : null;
         } elseif ( $field->type == 'text' ) {
-          $value = sanitize_text_field( $_POST[ $key ] );
+          $value = isset( $_POST[ $key ] ) ? sanitize_text_field( $_POST[ $key ] ) : null;
           if ( ! empty( $field->date_format ) ) {
             $value = date( $field->date_format, strtotime( $value ) );
           }
