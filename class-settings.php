@@ -1,8 +1,8 @@
 <?php
 
-if ( ! class_exists( 'Helios_Theme_Settings' ) ) :
+if ( ! class_exists( 'Helios_Settings' ) ) :
 
-  class Helios_Theme_Settings {
+  class Helios_Settings {
 
     private $tab_descriptions = array();
     private $section_descriptions = array();
@@ -198,7 +198,7 @@ if ( ! class_exists( 'Helios_Theme_Settings' ) ) :
     }
 
     function render_settings_tabs() {
-      screen_icon();
+      // screen_icon();
       echo '<h2 class="nav-tab-wrapper">';
       foreach ( $this->tabs as $k => $v) {
         $active = $this->current_tab == $k ? 'nav-tab-active' : '';
