@@ -47,7 +47,7 @@ if ( ! class_exists( 'Helios_Register_Custom_Post_Type' ) ) :
         'has_archive'   => ! isset( $data->archive ) ? true : $data->archive,
         'taxonomies'    => isset( $data->tax ) ? $data->tax : array(),
         'publicly_queryable'  => isset( $data->publicly_queryable ) ? $data->publicly_queryable : true,
-        'show_in_rest'  => isset( $data->show_in_rest ) ? $data->show_in_rest : true,
+        'show_in_rest'  => isset( $data->show_in_rest ) ? $data->show_in_rest : true
       );
 
       register_post_type( $data->id, $args );
