@@ -45,7 +45,9 @@ if ( ! class_exists( 'Helios_Register_Custom_Post_Type' ) ) :
         'menu_icon'     => isset( $data->menu_icon ) ? $data->menu_icon : null,
         'supports'      => $data->supports,
         'has_archive'   => ! isset( $data->archive ) ? true : $data->archive,
-        'taxonomies'    => isset( $data->tax ) ? $data->tax : array()
+        'taxonomies'    => isset( $data->tax ) ? $data->tax : array(),
+        'publicly_queryable'  => isset( $data->publicly_queryable ) ? $data->publicly_queryable : true,
+        'show_in_rest'  => isset( $data->show_in_rest ) ? $data->show_in_rest : true,
       );
 
       register_post_type( $data->id, $args );
